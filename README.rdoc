@@ -1,0 +1,10 @@
+A dashboard for your Aha.io product
+
+### Note: Aha requires an https connection
+
+- Generate a self signed certificate ([here are instructions](https://gist.github.com/trcarden/3295935))
+- `gem install foreman`
+- Create a Procfile, add `web: bundle exec thin start -p 3001 --ssl --ssl-key-file ~/.ssl/server.key --ssl-cert-file ~/.ssl/server.crt`
+	- Optionally, you can add `web: bundle exec thin start -p 3000` to run an http process alongside the https one
+- `foreman start`
+- visit https://localhost.ssl:3001

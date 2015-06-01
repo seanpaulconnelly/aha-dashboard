@@ -1,0 +1,82 @@
+<% content_for(:header) do %>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css"></link>
+  <script src="https://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+  <script type="text/javascript" charset="utf-8" src="https://secure.aha.io/assets/javascript_api/aha-api.latest.js"></script>
+  <style>
+    .feature {
+      border-top: 1px solid #0073cf;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+    .feature .reference-num {
+      float: left;
+      padding-right: 10px;
+    }
+    .feature .name {
+      float: left;
+      font-weight: bold;
+    }
+    .feature > .description {
+      clear: left;
+      margin-left: 20px;
+    }
+    .requirement {
+      position: relative;
+      margin-top: 15px;
+      margin-left: 20px;
+      
+    }
+    .requirement .reference-num {
+      position: absolute;
+      font-weight: bold;
+    }
+    .requirement .description {
+      margin-left: 120px;
+    }
+  </style>
+<% end %>
+
+<form id="controls">
+  <input type="text" placeholder="Aha! subdomain" id="subdomain"></input>
+  <input type="text" placeholder="Product key" id="product-key"></input>
+  <input type="submit" class="btn" value="Load features"></input>
+</form>
+
+<script id="feature-template" type="text/x-jquery-tmpl">
+  <div class="feature">
+    <div class="reference-num">${reference_num}</div>
+    <div class="name">${name}</div> 
+    <div class="description">{{html description.body}} </div>
+  
+    {{each requirements}}
+      <div class="requirement">
+        <div class="reference-num">${reference_num}</div>
+        <div class="description">{{html description.body}}</div>
+      </div>
+    {{/each}}
+  
+  </div>
+</script>
+
+<div id="features"></div>
+
+<script>
+  $("#controls").submit(function() {
+    var productKey = $("#product-key").val();
+    
+    new AhaApi({
+      accountDomain: $("#subdomain").val(),
+      clientId: "54406efa6638cb620bc3dfd0b4e4cc533e5d48ee56c1fb01ec5b4be3a28ccf35",
+      redirectUri: "https://localhost.ssl:3001/"
+    }).authenticate(function(api, success, message) {
+      // Hide the controls.
+      $("#controls").remove();
+      
+      // Fetch up to 200 features in one big fetch.
+      api.get("/products/" + productKey + "/features", {per_page: 200, fields: 'reference_num,name,description,requirements'}, function(response) {
+        $("#feature-template").tmpl(response.features).appendTo("#features");
+      });
+    });
+    return false;
+  });
+</script>
