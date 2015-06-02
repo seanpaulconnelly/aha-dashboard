@@ -1,0 +1,10 @@
+<script id="feature-template" type="text/x-jquery-tmpl">
+	<div class="feature">
+  	<p>${name}</p>
+  	<p>${url}</p>
+  	{{if assigned_to_user}}<p>${assigned_to_user.name}</p>{{/if}}
+  	<p>${workflow_status.name}</p>
+  	<p>${original_estimate}</p>
+  	<p>${remaining_estimate}</p>
+	</div>
+</script>

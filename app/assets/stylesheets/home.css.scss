@@ -1,3 +1,34 @@
-// Place all the styles related to the home controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+.release, .feature {
+	display:none;
+}
+
+.feature {
+  border-top: 1px solid #0073cf;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+.feature .reference-num {
+  float: left;
+  padding-right: 10px;
+}
+.feature .name {
+  float: left;
+  font-weight: bold;
+}
+.feature > .description {
+  clear: left;
+  margin-left: 20px;
+}
+.requirement {
+  position: relative;
+  margin-top: 15px;
+  margin-left: 20px;
+  
+}
+.requirement .reference-num {
+  position: absolute;
+  font-weight: bold;
+}
+.requirement .description {
+  margin-left: 120px;
+}

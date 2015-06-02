@@ -1,80 +1,79 @@
-<% content_for(:header) do %>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css"></link>
-  <script src="https://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-  <script type="text/javascript" charset="utf-8" src="https://secure.aha.io/assets/javascript_api/aha-api.latest.js"></script>
-  <style>
-    .feature {
-      border-top: 1px solid #0073cf;
-      margin-top: 10px;
-      margin-bottom: 30px;
-    }
-    .feature .reference-num {
-      float: left;
-      padding-right: 10px;
-    }
-    .feature .name {
-      float: left;
-      font-weight: bold;
-    }
-    .feature > .description {
-      clear: left;
-      margin-left: 20px;
-    }
-    .requirement {
-      position: relative;
-      margin-top: 15px;
-      margin-left: 20px;
-      
-    }
-    .requirement .reference-num {
-      position: absolute;
-      font-weight: bold;
-    }
-    .requirement .description {
-      margin-left: 120px;
-    }
-  </style>
-<% end %>
+<%= render"additions_to_header" %>
+<%= render 'release_template' %>
+<%= render 'feature_template' %>
+<%= render 'team_template' %>
 
-<form id="controls">
-  <input type="text" placeholder="Aha! subdomain" id="subdomain"></input>
-  <input type="text" placeholder="Product key" id="product-key"></input>
-  <input type="submit" class="btn" value="Load features"></input>
-</form>
+<%= render 'form' %>
 
-<script id="feature-template" type="text/x-jquery-tmpl">
-  <div class="feature">
-    <div class="reference-num">${reference_num}</div>
-    <div class="name">${name}</div> 
-    <div class="description">{{html description.body}} </div>
-  
-    {{each requirements}}
-      <div class="requirement">
-        <div class="reference-num">${reference_num}</div>
-        <div class="description">{{html description.body}}</div>
-      </div>
-    {{/each}}
-  
-  </div>
-</script>
-
+<div id="release"></div>
 <div id="features"></div>
+<div id="team"></div>
 
 <script>
   $("#controls").submit(function() {
-    var productKey = $("#product-key").val();
+    var productKey = "<%= ENV['AHA_PRODUCT_KEY'] %>";
+    // var releaseKey = $("#release-key").val();
+    var releaseKey = "PLMS-R-22";
+
     
     new AhaApi({
-      accountDomain: $("#subdomain").val(),
-      clientId: "54406efa6638cb620bc3dfd0b4e4cc533e5d48ee56c1fb01ec5b4be3a28ccf35",
-      redirectUri: "https://localhost.ssl:3001/"
+      accountDomain: "<%= ENV['AHA_SUBDOMAIN'] %>",
+      clientId: "<%= ENV['AHA_API_KEY'] %>",
+      redirectUri: "<%= ENV['AHA_REDIRECT_URI'] %>"
     }).authenticate(function(api, success, message) {
-      // Hide the controls.
-      $("#controls").remove();
-      
-      // Fetch up to 200 features in one big fetch.
-      api.get("/products/" + productKey + "/features", {per_page: 200, fields: 'reference_num,name,description,requirements'}, function(response) {
-        $("#feature-template").tmpl(response.features).appendTo("#features");
+
+    	// hide details if they exist already
+    	$('.release').hide("fast")
+    	$('.feature').hide("fast")
+
+    	// get some data from Aha! and use it to populate our templates
+      api.get("/releases/" + releaseKey, {fields: 'name,start_date,release_date,url,work_done,remaining_estimate'}, function(response) {
+        $("#release-template").tmpl(response.release).appendTo("#release").show("slow");
+      });
+      api.get("/releases/" + releaseKey + "/features", {fields: 'name,url,assigned_to_user,workflow_status,original_estimate,remaining_estimate'}, function(response) {
+        $("#feature-template").tmpl(response.features).appendTo("#features").show("slow");
+
+        
+
+        teamData = [];
+        for (i=0;i<response.features.length;i++) {
+					if (response.features[i].assigned_to_user) {
+		  			teamData[i] = {
+		  				"name": response.features[i].assigned_to_user.name, 
+		  				"workflow_status": response.features[i].workflow_status.name, 
+		  				"points_assigned": response.features[i].original_estimate || 0,
+		  				"points_remaining": response.features[i].remaining_estimate || 0
+		  			};
+		  		} else {
+		  			teamData[i] = {
+		  				"name": "unassigned", 
+		  				"workflow_status": response.features[i].workflow_status.name, 
+		  				"points_assigned": response.features[i].original_estimate || 0,
+		  				"points_remaining": response.features[i].remaining_estimate || 0
+		  			};
+		  		}
+		  	}
+		  	console.log(teamData);
+
+
+		  	function sum(numbers) {
+				  return _.reduce(numbers, function(result, current) {
+				    return result + parseFloat(current);
+				  }, 0);
+				}
+				var releaseTeam = _.chain(teamData)
+				  .groupBy("name")
+				  .map(function(value, key) {
+				    return {
+				      name: key,
+				      points_assigned: sum(_.pluck(value, "points_assigned")),
+				      points_remaining: sum(_.pluck(value, "points_remaining"))
+				    }
+				  })
+				  .value();
+				console.log(releaseTeam);
+
+				$("#team-template").tmpl(releaseTeam).appendTo("#team").show("slow");
       });
     });
     return false;
