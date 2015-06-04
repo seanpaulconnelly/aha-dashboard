@@ -17,7 +17,7 @@
  	
   $("#controls").submit(function() {
     var productKey = "<%= ENV['AHA_PRODUCT_KEY'] %>";
-    var releaseKey = "PLMS-R-22";
+    var releaseKey = $("#release-key").val();
 
     
     new AhaApi({
