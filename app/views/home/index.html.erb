@@ -19,7 +19,6 @@
     var productKey = "<%= ENV['AHA_PRODUCT_KEY'] %>";
     var releaseKey = $("#release-key").val();
 
-    
     new AhaApi({
       accountDomain: "<%= ENV['AHA_SUBDOMAIN'] %>",
       clientId: "<%= ENV['AHA_API_KEY'] %>",
@@ -40,78 +39,15 @@
       api.get("/releases/" + releaseKey, {fields: 'name,start_date,release_date,url,work_done,remaining_estimate'}, function(response) {
         $("#release-template").tmpl(response.release).appendTo("#release").fadeIn(1000);
       });
-      
-      api.get("/releases/" + releaseKey + "/features", {fields: 'name,url,reference_num,assigned_to_user,workflow_status,original_estimate,remaining_estimate'}, function(response) {
-        
 
-        for (i=0;i<response.features.length;i++) {
-        	if (
-        		response.features[i].workflow_status.name == "In Backlog" || 
-        		response.features[i].workflow_status.name == "Sprint Backlog"
-        		)
-        	{
-        		$("#backlog-template").tmpl(response.features[i]).appendTo("#backlog").delay(1500).slideDown("slow");
-        	} else if (
-        		response.features[i].workflow_status.name == "Working..." || 
-        		response.features[i].workflow_status.name == "Testing issues" || 
-        		response.features[i].workflow_status.name == "Code review"
-        		)
-        	{
-        		$("#in-progress-template").tmpl(response.features[i]).appendTo("#in-progress").delay(1600).slideDown("slow");
-        	} else if (
-        		response.features[i].workflow_status.name == "On Staging"
-        		)
-        	{
-        		$("#staging-template").tmpl(response.features[i]).appendTo("#staging").delay(1700).slideDown("slow");
-        	} else if (
-        		response.features[i].workflow_status.name == "Ready to ship" || 
-        		response.features[i].workflow_status.name == "Shipped"
-        		)
-        	{
-        		$("#done-template").tmpl(response.features[i]).appendTo("#done").delay(1800).slideDown("slow")
-        	}
+      api.get("/releases/" + releaseKey + "/features", {fields: 'name,url,reference_num,assigned_to_user,workflow_status,original_estimate,remaining_estimate'}, function(response) {        
+        featuresToTemplates(response.features);
+        buildTeamDataArray(response.features);
+        teamToTemplate();      
 
-        }
-
-        teamData = [];
-        for (i=0;i<response.features.length;i++) {
-					if (response.features[i].assigned_to_user) {
-		  			teamData[i] = {
-		  				"name": response.features[i].assigned_to_user.name, 
-		  				"workflow_status": response.features[i].workflow_status.name, 
-		  				"points_assigned": response.features[i].original_estimate || 0,
-		  				"points_remaining": response.features[i].remaining_estimate || 0
-		  			};
-		  		} else {
-		  			teamData[i] = {
-		  				"name": "unassigned", 
-		  				"workflow_status": response.features[i].workflow_status.name, 
-		  				"points_assigned": response.features[i].original_estimate || 0,
-		  				"points_remaining": response.features[i].remaining_estimate || 0
-		  			};
-		  		}
-		  	}
-
-
-		  	function sum(numbers) {
-				  return _.reduce(numbers, function(result, current) {
-				    return result + parseFloat(current);
-				  }, 0);
-				}
-				var releaseTeam = _.chain(teamData)
-				  .groupBy("name")
-				  .map(function(value, key) {
-				    return {
-				      name: key,
-				      points_assigned: sum(_.pluck(value, "points_assigned")),
-				      points_remaining: sum(_.pluck(value, "points_remaining"))
-				    }
-				  })
-				  .value();
-
-				$("#team-template").tmpl(releaseTeam).appendTo("#team").delay(800).slideDown("slow");
       });
     });
     return false;
   });
+
 </script>
