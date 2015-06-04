@@ -64,7 +64,7 @@
         	{
         		$("#staging-template").tmpl(response.features[i]).appendTo("#staging").delay(1700).slideDown("slow");
         	} else if (
-        		response.features[i].workflow_status.name == "Done" || 
+        		response.features[i].workflow_status.name == "Ready to ship" || 
         		response.features[i].workflow_status.name == "Shipped"
         		)
         	{
