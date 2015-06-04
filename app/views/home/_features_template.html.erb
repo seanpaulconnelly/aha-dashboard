@@ -1,0 +1,31 @@
+<script id="backlog-template" type="text/x-jquery-tmpl">
+<div class="feature col-lg-3 col-md-3">
+	<div class="panel panel-info">
+		<%= render 'feature_template' %>
+	</div>
+</div>
+</script>
+
+<script id="in-progress-template" type="text/x-jquery-tmpl">
+<div class="feature col-lg-3 col-md-3">
+	<div class="panel panel-warning">
+	  <%= render 'feature_template' %>
+	</div>
+</div>
+</script>
+
+<script id="staging-template" type="text/x-jquery-tmpl">
+<div class="feature col-lg-3 col-md-3">
+	<div class="panel panel-danger">
+	  <%= render 'feature_template' %>
+	</div>
+</div>
+</script>
+
+<script id="done-template" type="text/x-jquery-tmpl">
+<div class="feature col-lg-3 col-md-3">
+	<div class="panel panel-success">
+	  <%= render 'feature_template' %>
+	</div>
+</div>
+</script>

@@ -1,10 +1,9 @@
-<script id="feature-template" type="text/x-jquery-tmpl">
-	<div class="feature">
-  	<p>${name}</p>
-  	<p>${url}</p>
-  	{{if assigned_to_user}}<p>${assigned_to_user.name}</p>{{/if}}
-  	<p>${workflow_status.name}</p>
-  	<p>${original_estimate}</p>
-  	<p>${remaining_estimate}</p>
-	</div>
-</script>
+<div class="panel-heading">
+  <h3 class="panel-title"><a href="${url}" target="_blank">${reference_num}</a></h3>
+  {{if original_estimate}}<span class="badge">${original_estimate}</span>{{else}}<span class="label label-danger">No estimate</span>{{/if}}
+</div>
+<div class="panel-body">
+  <p>${name}</p>
+	<p><strong>{{if assigned_to_user}}${assigned_to_user.name}{{else}}<span>unassigned</span>{{/if}}</strong></p>
+	<p>${workflow_status.name}</p>
+</div>

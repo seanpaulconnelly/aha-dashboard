@@ -1,10 +1,61 @@
 <script id="release-template" type="text/x-jquery-tmpl">
-  <div class="release">
-    <p>${name}</p>
-    <p>${start_date}</p>
-    <p>${release_date}</p>
-    <p>${url}</p>
-    <p>${remaining_estimate}</p>
-    <p>${work_done}</p>
-  </div>
+  <div class="row release">
+		<div class="col-lg-12 col-md-12">
+		  <div class="page-header">
+		    <h1>${name}</h1>
+		    <p class="text-muted"><i class="fa fa-refresh fa-spin"></i> Last refreshed: ${moment(new Date()).format("dddd, MMM Do YYYY, h:mm:ss a")}</p>
+		  </div>
+		  <nav class="navbar navbar-default hidden-xs hidden-sm">
+				  <div class="container-fluid">
+				    <div class="navbar-header">
+				      <a class="navbar-brand" href="#">Aha!</a>
+				    </div>
+
+
+				      <ul class="nav navbar-nav">
+				        <li><a href="${url}" target="_blank">Go to Release <i class="fa fa-external-link"></i></a></li>
+				        <li><a href="https://<%= ENV['AHA_SUBDOMAIN'] %>.aha.io/products/<%= ENV['AHA_PRODUCT_KEY'] %>/feature_cards" target="_blank">Go to Feature Board <i class="fa fa-external-link"></i></a></li>
+				        <li><a href="https://<%= ENV['AHA_SUBDOMAIN'] %>.aha.io/products/<%= ENV['AHA_PRODUCT_KEY'] %>/feature_boards/new" target="_blank">Go to Workflow Board <i class="fa fa-external-link"></i></a></li>
+				      </ul>
+				  </div>
+				</nav>
+
+		    <div class="dash-card alert alert-danger col-lg-3 col-md-3">
+				  <div class="dash-card-icon col-lg-3 col-md-3">
+				  	<i class="fa fa-code"></i>
+				  </div>
+		    	<div class="dash-card-words col-lg-9 col-md-9">
+					  <h4>${remaining_estimate}</h4>
+					  <p>Points remaining</p>
+				  </div>
+				</div>
+				<div class="dash-card alert alert-success col-lg-3 col-md-3">
+				  <div class="dash-card-icon col-lg-3 col-md-3">
+				  	<i class="fa fa-ship"></i>
+				  </div>
+					<div class="dash-card-words col-lg-9 col-md-9">
+					  <h4>${work_done}</h4>
+					  <p>Points shipped</p>
+				  </div>
+				</div>
+				<div class="dash-card alert alert-info col-lg-3 col-md-3">
+				  <div class="dash-card-icon col-lg-3 col-md-3">
+				  	<i class="fa fa-calendar"></i>
+				  </div>
+				  <div class="dash-card-words col-lg-9 col-md-9">
+					  <h4>${moment(start_date).format("MMM Do")}</h4>
+					  <p>Start date</p>
+					</div>
+				</div>
+				<div class="dash-card alert alert-warning col-lg-3 col-md-3">
+				  <div class="dash-card-icon col-lg-3 col-md-3">
+				  	<i class="fa fa-ship"></i>
+				  </div>
+				  <div class="dash-card-words col-lg-9 col-md-9">
+					  <h4>${moment(new Date()).to(release_date)}</h4>
+					  <p>Planned release</p>
+					</div>
+				</div>
+		</div>
+	</div>
 </script>

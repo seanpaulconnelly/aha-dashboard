@@ -1,18 +1,22 @@
-<%= render"additions_to_header" %>
 <%= render 'release_template' %>
-<%= render 'feature_template' %>
+<%= render 'features_template' %>
 <%= render 'team_template' %>
 
 <%= render 'form' %>
 
-<div id="release"></div>
-<div id="features"></div>
-<div id="team"></div>
+<div class="container">
+	<div id="release"></div>
+	<ul id="team" class="list-group"></ul>
+	<div id="backlog" class="row gets-bottom-separator"></div>
+	<div id="in-progress" class="row gets-bottom-separator"></div>
+	<div id="staging" class="row gets-bottom-separator"></div>
+	<div id="done" class="row"></div>
+</div>
 
 <script>
+ 	
   $("#controls").submit(function() {
     var productKey = "<%= ENV['AHA_PRODUCT_KEY'] %>";
-    // var releaseKey = $("#release-key").val();
     var releaseKey = "PLMS-R-22";
 
     
@@ -22,18 +26,52 @@
       redirectUri: "<%= ENV['AHA_REDIRECT_URI'] %>"
     }).authenticate(function(api, success, message) {
 
-    	// hide details if they exist already
-    	$('.release').hide("fast")
-    	$('.feature').hide("fast")
+    	// keep our release key around for future button clicks
+    	$("#release-key").val(releaseKey);
+
+    	// hide, then remove details if they exist already
+    	$('.release').hide("fast").remove();
+    	$('.feature').hide("fast").remove();
+    	$('.team-member').hide("fast").remove();
+    	$('hr').remove();
+    	$('<hr>').hide().insertAfter('.gets-bottom-separator').delay(2000).fadeIn("slow");
 
     	// get some data from Aha! and use it to populate our templates
       api.get("/releases/" + releaseKey, {fields: 'name,start_date,release_date,url,work_done,remaining_estimate'}, function(response) {
-        $("#release-template").tmpl(response.release).appendTo("#release").show("slow");
+        $("#release-template").tmpl(response.release).appendTo("#release").fadeIn(1000);
       });
-      api.get("/releases/" + releaseKey + "/features", {fields: 'name,url,assigned_to_user,workflow_status,original_estimate,remaining_estimate'}, function(response) {
-        $("#feature-template").tmpl(response.features).appendTo("#features").show("slow");
-
+      
+      api.get("/releases/" + releaseKey + "/features", {fields: 'name,url,reference_num,assigned_to_user,workflow_status,original_estimate,remaining_estimate'}, function(response) {
         
+
+        for (i=0;i<response.features.length;i++) {
+        	if (
+        		response.features[i].workflow_status.name == "In Backlog" || 
+        		response.features[i].workflow_status.name == "Sprint Backlog"
+        		)
+        	{
+        		$("#backlog-template").tmpl(response.features[i]).appendTo("#backlog").delay(1500).slideDown("slow");
+        	} else if (
+        		response.features[i].workflow_status.name == "Working..." || 
+        		response.features[i].workflow_status.name == "Testing issues" || 
+        		response.features[i].workflow_status.name == "Code review"
+        		)
+        	{
+        		$("#in-progress-template").tmpl(response.features[i]).appendTo("#in-progress").delay(1600).slideDown("slow");
+        	} else if (
+        		response.features[i].workflow_status.name == "On Staging"
+        		)
+        	{
+        		$("#staging-template").tmpl(response.features[i]).appendTo("#staging").delay(1700).slideDown("slow");
+        	} else if (
+        		response.features[i].workflow_status.name == "Done" || 
+        		response.features[i].workflow_status.name == "Shipped"
+        		)
+        	{
+        		$("#done-template").tmpl(response.features[i]).appendTo("#done").delay(1800).slideDown("slow")
+        	}
+
+        }
 
         teamData = [];
         for (i=0;i<response.features.length;i++) {
@@ -53,7 +91,6 @@
 		  			};
 		  		}
 		  	}
-		  	console.log(teamData);
 
 
 		  	function sum(numbers) {
@@ -71,9 +108,8 @@
 				    }
 				  })
 				  .value();
-				console.log(releaseTeam);
 
-				$("#team-template").tmpl(releaseTeam).appendTo("#team").show("slow");
+				$("#team-template").tmpl(releaseTeam).appendTo("#team").delay(800).slideDown("slow");
       });
     });
     return false;
