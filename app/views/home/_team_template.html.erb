@@ -3,7 +3,7 @@
 		<li class="list-group-item team-member unassigned-points"><h3>${points_assigned} points are unassigned</h3></li>
 	{{else}}
 		<li class="list-group-item team-member">
-  		<span class="badge">${points_assigned} Points Assigned</span><span class="badge">${points_remaining} Points Remaining</span>
+  		<span class="badge">${points_assigned-points_remaining} are done</span><span class="badge">${points_assigned} points picked up</span>
   		<h3>${name}</h3>
 		</li>
 	{{/if}}
